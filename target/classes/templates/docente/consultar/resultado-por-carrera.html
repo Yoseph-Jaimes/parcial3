@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados por Carrera - Saber Pro Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #0a0a0a; min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar { background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 255, 136, 0.15); padding: 0.8rem 0; }
+        .navbar-brand { font-size: 1.5rem; font-weight: 800; color: #00ff88 !important; }
+        
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 45px; background: #1a1a1a; min-width: 200px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(0,255,136,0.15); z-index: 1000; }
+        .dropdown-content a { color: #c0c0c0; padding: 12px 16px; text-decoration: none; display: block; cursor: pointer; }
+        .dropdown-content a:hover { background: rgba(0,255,136,0.1); color: #00ff88; }
+        .dropdown-content .divider { height: 1px; background: rgba(255,255,255,0.08); margin: 5px 0; }
+        .show { display: block !important; }
+        .user-btn { background: rgba(0,255,136,0.1); border-radius: 40px; padding: 5px 15px; cursor: pointer; }
+        .user-avatar { width: 32px; height: 32px; background: linear-gradient(135deg, #00ff88, #00b4d8); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
+        .user-avatar i { font-size: 18px; color: #0a0a0a; }
+        .user-name { font-size: 0.85rem; font-weight: 500; color: #00ff88; }
+        .footer { background: #0a0a0a; color: #6b6b6b; margin-top: auto; padding: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.05); }
+        
+        .table-container { background: #141414; border-radius: 20px; overflow: hidden; border: 1px solid rgba(0,255,136,0.1); }
+        .table { margin-bottom: 0; color: #c0c0c0; }
+        .table thead { background: #1a1a1a; color: #00ff88; }
+        .table thead th { padding: 1rem; border-bottom: 1px solid rgba(0,255,136,0.2); }
+        .table tbody td { padding: 0.8rem 1rem; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .table tbody tr:hover { background: rgba(0,255,136,0.05); }
+        
+        .btn-back { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.2); border-radius: 40px; padding: 10px 28px; color: #00ff88; text-decoration: none; transition: all 0.3s; display: inline-block; }
+        .btn-back:hover { background: #00ff88; color: #0a0a0a; transform: translateY(-2px); }
+        .btn-view { background: rgba(0,255,136,0.15); border: 1px solid rgba(0,255,136,0.3); border-radius: 30px; padding: 5px 12px; color: #00ff88; text-decoration: none; font-size: 0.75rem; transition: all 0.3s; }
+        .btn-view:hover { background: #00ff88; color: #0a0a0a; }
+        .puntaje-destacado { color: #00ff88; font-weight: 700; }
+        .carrera-titulo { color: #00ff88; font-size: 1.3rem; margin-bottom: 1rem; border-left: 4px solid #00ff88; padding-left: 1rem; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="fas fa-graduation-cap me-2"></i> Saber Pro Manager
+        </a>
+        <div class="ms-auto">
+            <div class="dropdown">
+                <div class="user-btn d-flex align-items-center" onclick="toggleDropdown()">
+                    <div class="user-avatar"><i class="fas fa-user"></i></div>
+                    <span class="user-name" th:text="${session.usuario != null ? session.usuario.primerNombre : 'Usuario'}"></span>
+                    <i class="fas fa-chevron-down ms-2" style="font-size: 12px; color: #00ff88;"></i>
+                </div>
+                <div id="dropdownMenu" class="dropdown-content">
+                    <div class="px-3 py-2 text-muted small" th:text="${session.usuario != null ? session.usuario.email : ''}"></div>
+                    <div class="divider"></div>
+                    <a href="#" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold" style="color: #00ff88;">Resultados por Carrera</h1>
+            <p class="text-white-50" th:text="'Carrera: ' + ${carrera.nombre}">-</p>
+        </div>
+        <a href="/docente/consultar/por-carrera" class="btn-back">
+            <i class="fas fa-arrow-left me-2"></i>Volver a Consultar
+        </a>
+    </div>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Documento</th>
+                    <th>Estudiante</th>
+                    <th>Email</th>
+                    <th>Estado Pago</th>
+                    <th>Último Puntaje</th>
+                    <th class="text-center">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="estudiante, iterStat : ${estudiantes}">
+                    <td th:text="${iterStat.count}">1</td>
+                    <td th:text="${estudiante.numeroDocumento}">-</td>
+                    <td th:text="${estudiante.primerNombre} + ' ' + ${estudiante.primerApellido}">-</td>
+                    <td th:text="${estudiante.email}">-</td>
+                    <td>
+                        <span th:if="${estudiante.estadoPago.name() == 'APROBADO'}" class="badge-aprobado">APROBADO</span>
+                        <span th:if="${estudiante.estadoPago.name() == 'PENDIENTE'}" class="badge-pendiente">PENDIENTE</span>
+                    </td>
+                    <td class="puntaje-destacado">
+                        <span th:each="resultado : ${estudiante.resultados}">
+                            <span th:if="${resultado.estado.name() == 'ACTIVO'}" th:text="${resultado.puntajeTotal} + ' pts'"></span>
+                        </span>
+                        <span th:if="${estudiante.resultados.isEmpty()}">Sin resultados</span>
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{/docente/informes/unico/{id}(id=${estudiante.id})}" class="btn-view">
+                            <i class="fas fa-eye me-1"></i>Ver detalle
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${estudiantes.isEmpty()}">
+                    <td colspan="7" class="text-center py-4 text-muted">
+                        <i class="fas fa-users fa-2x mb-2 d-block"></i>
+                        No hay estudiantes en esta carrera
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer class="footer py-4 mt-5">
+    <div class="container text-center">
+        <p class="small mb-0">&copy; 2024 Saber Pro Manager - Todos los derechos reservados</p>
+    </div>
+</footer>
+
+<script>
+    function toggleDropdown() {
+        document.getElementById("dropdownMenu").classList.toggle("show");
+    }
+    function cerrarSesion() {
+        window.location.href = "/logout";
+    }
+    window.onclick = function(event) {
+        if (!event.target.closest('.dropdown')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                dropdowns[i].classList.remove("show");
+            }
+        }
+    }
+</script>
+</body>
+</html>

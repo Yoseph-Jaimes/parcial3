@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprobar Pagos - Saber Pro Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #0a0a0a; min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar { background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 180, 216, 0.15); padding: 0.8rem 0; }
+        .navbar-brand { font-size: 1.5rem; font-weight: 800; color: #00b4d8 !important; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 45px; background: #1a1a1a; min-width: 200px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(0,180,216,0.15); z-index: 1000; }
+        .dropdown-content a { color: #c0c0c0; padding: 12px 16px; text-decoration: none; display: block; cursor: pointer; }
+        .dropdown-content a:hover { background: rgba(0,180,216,0.1); color: #00b4d8; }
+        .dropdown-content .divider { height: 1px; background: rgba(255,255,255,0.08); margin: 5px 0; }
+        .show { display: block !important; }
+        .user-btn { background: rgba(0,180,216,0.1); border-radius: 40px; padding: 5px 15px; cursor: pointer; }
+        .user-avatar { width: 32px; height: 32px; background: linear-gradient(135deg, #00b4d8, #00ff88); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
+        .user-avatar i { font-size: 18px; color: #0a0a0a; }
+        .user-name { font-size: 0.85rem; font-weight: 500; color: #00b4d8; }
+        .footer { background: #0a0a0a; color: #6b6b6b; margin-top: auto; padding: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.05); }
+        
+        .table-container { background: #141414; border-radius: 20px; overflow: hidden; border: 1px solid rgba(0,180,216,0.1); }
+        .table { margin-bottom: 0; color: #c0c0c0; }
+        .table thead { background: #1a1a1a; color: #00b4d8; }
+        .table thead th { padding: 1rem; border-bottom: 1px solid rgba(0,180,216,0.2); }
+        .table tbody td { padding: 0.8rem 1rem; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .btn-aprobar { background: rgba(0,255,136,0.15); border: 1px solid rgba(0,255,136,0.3); border-radius: 30px; padding: 5px 15px; color: #00ff88; text-decoration: none; font-size: 0.8rem; transition: all 0.3s; cursor: pointer; }
+        .btn-aprobar:hover { background: #00ff88; color: #0a0a0a; }
+        .btn-rechazar { background: rgba(255,68,68,0.15); border: 1px solid rgba(255,68,68,0.3); border-radius: 30px; padding: 5px 15px; color: #ff8888; text-decoration: none; font-size: 0.8rem; transition: all 0.3s; cursor: pointer; }
+        .btn-rechazar:hover { background: #ff4444; color: #0a0a0a; }
+        .btn-back { background: rgba(0,180,216,0.1); border: 1px solid rgba(0,180,216,0.2); border-radius: 40px; padding: 10px 28px; color: #00b4d8; text-decoration: none; transition: all 0.3s; display: inline-block; }
+        .btn-back:hover { background: #00b4d8; color: #0a0a0a; transform: translateY(-2px); }
+        
+        .badge-pendiente { background: rgba(255, 193, 7, 0.15); color: #ffc107; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; }
+        .modal-content { background: #141414; border: 1px solid rgba(0,180,216,0.2); }
+        .modal-header { border-bottom: 1px solid rgba(0,180,216,0.2); }
+        .modal-footer { border-top: 1px solid rgba(0,180,216,0.2); }
+        .modal-title { color: #00b4d8; }
+        .btn-close { filter: invert(1); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="fas fa-graduation-cap me-2"></i> Saber Pro Manager
+        </a>
+        <div class="ms-auto">
+            <div class="dropdown">
+                <div class="user-btn d-flex align-items-center" onclick="toggleDropdown()">
+                    <div class="user-avatar"><i class="fas fa-user"></i></div>
+                    <span class="user-name" th:text="${session.usuario != null ? session.usuario.primerNombre : 'Usuario'}"></span>
+                    <i class="fas fa-chevron-down ms-2" style="font-size: 12px; color: #00b4d8;"></i>
+                </div>
+                <div id="dropdownMenu" class="dropdown-content">
+                    <div class="px-3 py-2 text-muted small" th:text="${session.usuario != null ? session.usuario.email : ''}"></div>
+                    <div class="divider"></div>
+                    <a href="#" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5 mt-4">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold" style="color: #00b4d8;">Aprobar Pagos</h1>
+        <p class="text-white-50">Revise los recibos de pago de los estudiantes</p>
+    </div>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Estudiante</th>
+                    <th>Documento</th>
+                    <th>Archivo</th>
+                    <th>Fecha de Carga</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="recibo : ${recibos}">
+                    <td th:text="${recibo.estudiante.primerNombre} + ' ' + ${recibo.estudiante.primerApellido}">-</td>
+                    <td th:text="${recibo.estudiante.numeroDocumento}">-</td>
+                    <td>
+                        <a th:href="@{/${recibo.rutaArchivo}}" target="_blank" class="text-info">
+                            <i class="fas fa-file-pdf me-1"></i> <span th:text="${recibo.nombreArchivo}"></span>
+                        </a>
+                    </td>
+                    <td th:text="${#temporals.format(recibo.fechaCarga, 'dd/MM/yyyy HH:mm')}">-</td>
+                    <td><span class="badge-pendiente">PENDIENTE</span></td>
+                    <td class="text-center">
+                        <button class="btn-aprobar me-2" th:onclick="'aprobarPago(' + ${recibo.id} + ')'">
+                            <i class="fas fa-check me-1"></i>Aprobar
+                        </button>
+                        <button class="btn-rechazar" th:onclick="'mostrarRechazo(' + ${recibo.id} + ')'">
+                            <i class="fas fa-times me-1"></i>Rechazar
+                        </button>
+                    </td>
+                </tr>
+                <tr th:if="${recibos.isEmpty()}">
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        <i class="fas fa-file-invoice-dollar fa-2x mb-2 d-block"></i>
+                        No hay recibos pendientes por aprobar
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="/coordinador/dashboard" class="btn-back">
+            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Modal para aprobar -->
+<div class="modal fade" id="aprobarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Aprobación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de aprobar este pago?</p>
+                <p class="text-muted small">El estudiante quedará habilitado para ver sus resultados.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="aprobarForm" method="post">
+                    <input type="hidden" name="accion" value="aprobar">
+                    <button type="button" class="btn-back" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-aprobar">Aprobar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para rechazar -->
+<div class="modal fade" id="rechazarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rechazar Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de rechazar este pago?</p>
+                <label class="form-label">Motivo del rechazo:</label>
+                <textarea name="observacion" class="form-control" rows="3" placeholder="Ingrese el motivo del rechazo..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <form id="rechazarForm" method="post">
+                    <input type="hidden" name="accion" value="rechazar">
+                    <button type="button" class="btn-back" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-rechazar">Rechazar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer py-4 mt-5">
+    <div class="container text-center">
+        <p class="small mb-0">&copy; 2024 Saber Pro Manager - Todos los derechos reservados</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleDropdown() {
+        document.getElementById("dropdownMenu").classList.toggle("show");
+    }
+    function cerrarSesion() {
+        window.location.href = "/logout";
+    }
+    window.onclick = function(event) {
+        if (!event.target.closest('.dropdown')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                dropdowns[i].classList.remove("show");
+            }
+        }
+    }
+    
+    function aprobarPago(id) {
+        var form = document.getElementById('aprobarForm');
+        form.action = '/coordinador/estudiantes/aprobar-pago/' + id;
+        var modal = new bootstrap.Modal(document.getElementById('aprobarModal'));
+        modal.show();
+    }
+    
+    function mostrarRechazo(id) {
+        var form = document.getElementById('rechazarForm');
+        form.action = '/coordinador/estudiantes/aprobar-pago/' + id;
+        var modal = new bootstrap.Modal(document.getElementById('rechazarModal'));
+        modal.show();
+    }
+</script>
+</body>
+</html>

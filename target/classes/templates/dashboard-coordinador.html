@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinador - Saber Pro Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #0a0a0a; min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar { background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 180, 216, 0.15); padding: 0.8rem 0; }
+        .navbar-brand { font-size: 1.5rem; font-weight: 800; color: #00b4d8 !important; }
+        
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 45px; background: #1a1a1a; min-width: 200px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(0,180,216,0.15); z-index: 1000; }
+        .dropdown-content a { color: #c0c0c0; padding: 12px 16px; text-decoration: none; display: block; cursor: pointer; }
+        .dropdown-content a:hover { background: rgba(0,180,216,0.1); color: #00b4d8; }
+        .dropdown-content .divider { height: 1px; background: rgba(255,255,255,0.08); margin: 5px 0; }
+        .show { display: block !important; }
+        
+        .user-btn { background: rgba(0,180,216,0.1); border-radius: 40px; padding: 5px 15px; cursor: pointer; }
+        .user-avatar { width: 32px; height: 32px; background: linear-gradient(135deg, #00b4d8, #00ff88); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
+        .user-avatar i { font-size: 18px; color: #0a0a0a; }
+        .user-name { font-size: 0.85rem; font-weight: 500; color: #00b4d8; }
+        
+        .dashboard-card { background: #141414; border: 1px solid rgba(0,180,216,0.1); border-radius: 24px; padding: 1.8rem; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .dashboard-card:hover { transform: translateY(-8px); border-color: #00b4d8; }
+        .dashboard-card i { font-size: 48px; margin-bottom: 1rem; color: #00b4d8; }
+        .dashboard-card h4 { color: #00b4d8; font-size: 1.2rem; font-weight: 700; }
+        .dashboard-card p { color: #a0a0a0; font-size: 0.8rem; }
+        
+        .footer { background: #0a0a0a; color: #6b6b6b; margin-top: auto; padding: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="fas fa-graduation-cap me-2"></i> Saber Pro Manager
+        </a>
+        <div class="ms-auto">
+            <div class="dropdown">
+                <div class="user-btn d-flex align-items-center" onclick="toggleDropdown()">
+                    <div class="user-avatar"><i class="fas fa-user"></i></div>
+                    <span class="user-name" th:text="${session.usuario != null ? session.usuario.primerNombre : 'Usuario'}"></span>
+                    <i class="fas fa-chevron-down ms-2" style="font-size: 12px; color: #00b4d8;"></i>
+                </div>
+                <div id="dropdownMenu" class="dropdown-content">
+                    <div class="px-3 py-2 text-muted small" th:text="${session.usuario != null ? session.usuario.email : ''}"></div>
+                    <div class="divider"></div>
+                    <a href="#" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5 mt-4">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold" style="color: #00b4d8;">Panel de Coordinador</h1>
+        <p class="lead text-white-50">Gestión de estudiantes y resultados Saber Pro</p>
+    </div>
+
+    <!-- Tarjetas principales -->
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="dashboard-card" onclick="window.location.href='/coordinador/estudiantes'">
+                <i class="fas fa-users"></i>
+                <h4>Estudiantes</h4>
+                <p>Gestionar estudiantes</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card" onclick="window.location.href='/coordinador/estudiantes/aprobar-pagos'">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <h4>Aprobar Pagos</h4>
+                <p>Revisar recibos</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card" onclick="window.location.href='/coordinador/resultados'">
+                <i class="fas fa-chart-line"></i>
+                <h4>Resultados</h4>
+                <p>CRUD de resultados</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card" onclick="window.location.href='/coordinador/informes/total'">
+                <i class="fas fa-file-alt"></i>
+                <h4>Informes</h4>
+                <p>Generar reportes</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones extra -->
+    <div class="row g-4 mt-4">
+        <div class="col-md-3">
+            <div class="dashboard-card" onclick="window.location.href='/coordinador/informes/exportar-csv'">
+                <i class="fas fa-file-csv"></i>
+                <h4>Exportar CSV</h4>
+                <p>Descargar informe en Excel</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card" onclick="window.location.href='/coordinador/estudiantes/carga-masiva'">
+                <i class="fas fa-upload"></i>
+                <h4>Carga Masiva</h4>
+                <p>Subir estudiantes CSV</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card" onclick="window.location.href='/cambiar-password'">
+                <i class="fas fa-key"></i>
+                <h4>Cambiar Contraseña</h4>
+                <p>Actualizar tu clave</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="dashboard-card" onclick="window.location.href='/coordinador/resultados'">
+                <i class="fas fa-chart-simple"></i>
+                <h4>Estadísticas</h4>
+                <p>Ver gráficos de rendimiento</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer py-4 mt-5">
+    <div class="container text-center">
+        <p class="small mb-0">&copy; 2024 Saber Pro Manager - Todos los derechos reservados</p>
+    </div>
+</footer>
+
+<script>
+    function toggleDropdown() {
+        document.getElementById("dropdownMenu").classList.toggle("show");
+    }
+    function cerrarSesion() {
+        window.location.href = "/logout";
+    }
+    window.onclick = function(event) {
+        if (!event.target.closest('.dropdown')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                dropdowns[i].classList.remove("show");
+            }
+        }
+    }
+</script>
+</body>
+</html>
