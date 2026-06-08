@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Resolución de Beneficios - Saber Pro Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #0a0a0a; min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar { background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 255, 136, 0.15); padding: 0.8rem 0; }
+        .navbar-brand { font-size: 1.5rem; font-weight: 800; color: #00ff88 !important; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 45px; background: #1a1a1a; min-width: 200px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(0,255,136,0.15); z-index: 1000; }
+        .dropdown-content a { color: #c0c0c0; padding: 12px 16px; text-decoration: none; display: block; cursor: pointer; }
+        .dropdown-content a:hover { background: rgba(0,255,136,0.1); color: #00ff88; }
+        .dropdown-content .divider { height: 1px; background: rgba(255,255,255,0.08); margin: 5px 0; }
+        .show { display: block !important; }
+        .user-btn { background: rgba(0,255,136,0.1); border-radius: 40px; padding: 5px 15px; cursor: pointer; }
+        .user-avatar { width: 32px; height: 32px; background: linear-gradient(135deg, #00ff88, #00b4d8); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; }
+        .user-avatar i { font-size: 18px; color: #0a0a0a; }
+        .user-name { font-size: 0.85rem; font-weight: 500; color: #00ff88; }
+        .footer { background: #0a0a0a; color: #6b6b6b; margin-top: auto; padding: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.05); }
+        
+        .form-card { background: #141414; border: 1px solid rgba(0,255,136,0.1); border-radius: 24px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .beneficio-item { background: #1a1a1a; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border-left: 3px solid #00ff88; }
+        .btn-submit { background: linear-gradient(135deg, #00ff88, #00b4d8); border: none; border-radius: 40px; padding: 10px 24px; font-weight: 600; color: #0a0a0a; transition: all 0.3s; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,255,136,0.3); }
+        .btn-edit { background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3); border-radius: 30px; padding: 5px 12px; color: #00b4d8; text-decoration: none; font-size: 0.8rem; }
+        .btn-edit:hover { background: #00b4d8; color: #0a0a0a; }
+        .btn-delete { background: rgba(255,68,68,0.15); border: 1px solid rgba(255,68,68,0.3); border-radius: 30px; padding: 5px 12px; color: #ff8888; text-decoration: none; font-size: 0.8rem; }
+        .btn-delete:hover { background: #ff4444; color: #0a0a0a; }
+        .btn-back { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.2); border-radius: 40px; padding: 10px 28px; color: #00ff88; text-decoration: none; display: inline-block; }
+        .btn-back:hover { background: #00ff88; color: #0a0a0a; transform: translateY(-2px); }
+        .btn-activate { background: rgba(0,255,136,0.15); border: none; border-radius: 30px; padding: 4px 12px; color: #00ff88; font-size: 0.7rem; transition: all 0.3s; cursor: pointer; }
+        .btn-activate:hover { background: #00ff88; color: #0a0a0a; }
+        .section-title { color: #00ff88; font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; border-bottom: 1px solid rgba(0,255,136,0.2); padding-bottom: 0.5rem; }
+        .badge-active { background: rgba(0,255,136,0.2); color: #00ff88; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; }
+        .badge-inactive { background: rgba(255,68,68,0.2); color: #ff8888; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; }
+        .fecha-resolucion { color: #00b4d8 !important; font-size: 0.7rem; margin-top: 5px; display: flex; align-items: center; gap: 5px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="fas fa-graduation-cap me-2"></i> Saber Pro Manager
+        </a>
+        <div class="ms-auto">
+            <div class="dropdown">
+                <div class="user-btn d-flex align-items-center" onclick="toggleDropdown()">
+                    <div class="user-avatar"><i class="fas fa-user"></i></div>
+                    <span class="user-name" th:text="${session.usuario != null ? session.usuario.primerNombre : 'Usuario'}"></span>
+                    <i class="fas fa-chevron-down ms-2" style="font-size: 12px; color: #00ff88;"></i>
+                </div>
+                <div id="dropdownMenu" class="dropdown-content">
+                    <div class="px-3 py-2 text-muted small" th:text="${session.usuario != null ? session.usuario.email : ''}"></div>
+                    <div class="divider"></div>
+                    <a href="#" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5 mt-4">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold" style="color: #00ff88;">Resolución de Beneficios</h1>
+        <p class="text-white-50">Configuración de beneficios académicos</p>
+    </div>
+
+    <div class="row">
+        <!-- Beneficios Configurados -->
+        <div class="col-lg-6">
+            <div class="form-card">
+                <h4 class="section-title">
+                    <i class="fas fa-trophy me-2"></i> Beneficios Configurados
+                </h4>
+                <div th:if="${beneficios != null and !beneficios.isEmpty()}">
+                    <div th:each="beneficio : ${beneficios}" class="beneficio-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong th:text="${beneficio.nombre}" style="color: #00ff88;"></strong>
+                                <div class="small" style="color: #a0a0a0;" th:text="${beneficio.descripcion}"></div>
+                                <div class="small mt-1">Puntaje mínimo: <strong th:text="${beneficio.puntajeMinimo} + ' pts'"></strong></div>
+                            </div>
+                            <div>
+                                <a th:href="@{/admin/beneficios/editar/{id}(id=${beneficio.id})}" class="btn-edit me-2">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{/admin/beneficios/eliminar/{id}(id=${beneficio.id})}" 
+                                   class="btn-delete"
+                                   onclick="return confirm('¿Eliminar este beneficio?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${beneficios == null or beneficios.isEmpty()}" class="text-center py-3">
+                    <i class="fas fa-trophy fa-2x mb-2 d-block" style="color: #6b6b6b;"></i>
+                    <p class="text-muted">No hay beneficios configurados</p>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="/admin/beneficios/registrar" class="btn-submit">
+                        <i class="fas fa-plus me-2"></i>Agregar Beneficio
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resoluciones -->
+        <div class="col-lg-6">
+            <div class="form-card">
+                <h4 class="section-title">
+                    <i class="fas fa-file-alt me-2"></i> Resoluciones
+                </h4>
+                
+                <!-- Formulario para nueva resolución -->
+                <form action="/admin/resolucion/beneficios/nueva" method="post" class="mb-4">
+                    <label class="form-label">Nueva Resolución</label>
+                    <div class="d-flex gap-2">
+                        <input type="text" name="descripcion" class="form-control" placeholder="Descripción de la resolución" required>
+                        <button type="submit" class="btn-submit" style="white-space: nowrap;">Crear</button>
+                    </div>
+                </form>
+
+                <!-- Lista de resoluciones -->
+                <div th:if="${resoluciones != null and !resoluciones.isEmpty()}">
+                    <div th:each="resolucion : ${resoluciones}" class="beneficio-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong th:text="'Resolución ' + ${resolucion.id}" style="color: #00ff88;"></strong>
+                                <div class="small" style="color: #a0a0a0;" th:text="${resolucion.descripcion}"></div>
+                                <div class="fecha-resolucion">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span th:text="${#temporals.format(resolucion.fecha, 'dd/MM/yyyy')}"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <span th:if="${resolucion.activo}" class="badge-active">ACTIVA</span>
+                                <span th:unless="${resolucion.activo}" class="badge-inactive">INACTIVA</span>
+                                <form th:if="${!resolucion.activo}" action="/admin/resolucion/beneficios/activar" method="post" class="d-inline ms-2">
+                                    <input type="hidden" name="id" th:value="${resolucion.id}">
+                                    <button type="submit" class="btn-activate">Activar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${resoluciones == null or resoluciones.isEmpty()}" class="text-center py-3">
+                    <p class="text-muted">No hay resoluciones creadas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="/admin/dashboard" class="btn-back">
+            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+        </a>
+    </div>
+</div>
+
+<footer class="footer py-4 mt-5">
+    <div class="container text-center">
+        <p class="small mb-0">&copy; 2024 Saber Pro Manager - Todos los derechos reservados</p>
+    </div>
+</footer>
+
+<script>
+    function toggleDropdown() {
+        document.getElementById("dropdownMenu").classList.toggle("show");
+    }
+    function cerrarSesion() {
+        window.location.href = "/logout";
+    }
+    window.onclick = function(event) {
+        if (!event.target.closest('.dropdown')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                dropdowns[i].classList.remove("show");
+            }
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+/* =====================================================
+   SABER PRO MANAGER - DARK MODE COMPLETO
+   Todos los textos visibles en fondo oscuro
+   ===================================================== */
+
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: #0a0a0a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: #e0e0e0;
+}
+
+/* ========== TEXTOS GENERALES ========== */
+h1, h2, h3, h4, h5, h6 {
+    color: #00ff88;
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.text-muted {
+    color: rgba(255, 255, 255, 0.55) !important;
+}
+
+p, span, li, label {
+    color: #c0c0c0;
+}
+
+/* ========== ALERTAS ========== */
+.alert {
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    font-size: 0.85rem;
+    border: none;
+    border-left: 4px solid;
+}
+.alert-success {
+    background: rgba(0, 255, 136, 0.12);
+    color: #00ff88;
+    border-left-color: #00ff88;
+}
+.alert-danger {
+    background: rgba(255, 68, 68, 0.12);
+    color: #ff8888;
+    border-left-color: #ff4444;
+}
+.alert-warning {
+    background: rgba(255, 193, 7, 0.12);
+    color: #ffcd4a;
+    border-left-color: #ffc107;
+}
+.alert-info {
+    background: rgba(0, 180, 216, 0.12);
+    color: #4ad8ff;
+    border-left-color: #00b4d8;
+}
+
+/* ========== FORMULARIOS ========== */
+.form-control, .form-select {
+    background: #1a1a1a !important;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    color: #ffffff !important;
+    border-radius: 12px;
+    padding: 10px 15px;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.15);
+    background: #1a1a1a;
+    color: #ffffff;
+}
+.form-control::placeholder {
+    color: #8a8a8a !important;
+    opacity: 1;
+}
+.form-label {
+    color: #00ff88;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* ========== TABLAS ========== */
+.table-container {
+    background: #141414;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 255, 136, 0.1);
+}
+.table {
+    margin-bottom: 0;
+    color: #e0e0e0;
+}
+.table thead {
+    background: #1a1a1a;
+    color: #00ff88;
+}
+.table thead th {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+    font-weight: 600;
+}
+.table tbody td {
+    padding: 0.8rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #c0c0c0;
+}
+.table tbody tr:hover {
+    background: rgba(0, 255, 136, 0.05);
+}
+
+/* ========== BOTONES ========== */
+.btn-primary {
+    background: linear-gradient(135deg, #00ff88, #00b4d8);
+    border: none;
+    border-radius: 40px;
+    padding: 8px 20px;
+    font-weight: 600;
+    color: #0a0a0a;
+    transition: all 0.3s;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+}
+
+.btn-edit {
+    background: rgba(0, 180, 216, 0.15);
+    border: 1px solid rgba(0, 180, 216, 0.3);
+    border-radius: 30px;
+    padding: 5px 12px;
+    color: #00b4d8;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+}
+.btn-edit:hover {
+    background: #00b4d8;
+    color: #0a0a0a;
+}
+
+.btn-delete {
+    background: rgba(255, 68, 68, 0.15);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 30px;
+    padding: 5px 12px;
+    color: #ff8888;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+}
+.btn-delete:hover {
+    background: #ff4444;
+    color: #0a0a0a;
+}
+
+.btn-back {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 40px;
+    padding: 10px 28px;
+    color: #00ff88;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-block;
+}
+.btn-back:hover {
+    background: #00ff88;
+    color: #0a0a0a;
+    transform: translateY(-2px);
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #00ff88, #00b4d8);
+    border: none;
+    border-radius: 40px;
+    padding: 12px 30px;
+    font-weight: 600;
+    color: #0a0a0a;
+    transition: all 0.3s;
+}
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+}
+
+.btn-activate {
+    background: rgba(0, 255, 136, 0.15);
+    border: none;
+    border-radius: 30px;
+    padding: 4px 12px;
+    color: #00ff88;
+    font-size: 0.7rem;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+.btn-activate:hover {
+    background: #00ff88;
+    color: #0a0a0a;
+}
+
+/* ========== TARJETAS ========== */
+.card, .form-card, .info-card, .upload-card, .result-card {
+    background: #141414;
+    border: 1px solid rgba(0, 255, 136, 0.1);
+    border-radius: 24px;
+    padding: 1.5rem;
+    transition: all 0.3s;
+}
+.card:hover, .form-card:hover, .info-card:hover, .upload-card:hover, .result-card:hover {
+    border-color: rgba(0, 255, 136, 0.3);
+}
+
+.dashboard-card {
+    background: #141414;
+    border: 1px solid rgba(0, 255, 136, 0.1);
+    border-radius: 24px;
+    padding: 1.8rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.dashboard-card:hover {
+    transform: translateY(-8px);
+    border-color: #00ff88;
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.1);
+}
+.dashboard-card i {
+    font-size: 48px;
+    margin-bottom: 1rem;
+    color: #00ff88;
+}
+.dashboard-card h4 {
+    color: #00ff88;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+.dashboard-card p {
+    color: #a0a0a0;
+    font-size: 0.8rem;
+}
+
+/* ========== BENEFICIOS Y RESOLUCIONES ========== */
+.section-title {
+    color: #00ff88 !important;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.beneficio-item {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 3px solid #00ff88;
+}
+
+.beneficio-item strong {
+    color: #00ff88 !important;
+}
+
+.beneficio-item .small {
+    color: #a0a0a0 !important;
+}
+
+/* Fecha visible en resoluciones */
+.fecha-resolucion {
+    color: #00b4d8 !important;
+    font-size: 0.7rem;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Badges */
+.badge-pendiente {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+.badge-aprobado {
+    background: rgba(0, 255, 136, 0.15);
+    color: #00ff88;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+.badge-rechazado {
+    background: rgba(255, 68, 68, 0.15);
+    color: #ff8888;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+.badge-active {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+}
+.badge-inactive {
+    background: rgba(255, 68, 68, 0.2);
+    color: #ff8888;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+}
+
+/* ========== UPLOAD AREA ========== */
+.upload-area {
+    border: 2px dashed rgba(0, 255, 136, 0.3);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.upload-area:hover {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.05);
+}
+.file-list {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+/* ========== NAVBAR ========== */
+.navbar {
+    background: rgba(10, 10, 10, 0.98);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 255, 136, 0.15);
+    padding: 0.8rem 0;
+}
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #00ff88 !important;
+}
+.navbar-brand i {
+    color: #00b4d8;
+}
+
+/* ========== DROPDOWN ========== */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background: #1a1a1a;
+    min-width: 200px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 255, 136, 0.15);
+    z-index: 1000;
+}
+.dropdown-content a {
+    color: #c0c0c0;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+.dropdown-content a:hover {
+    background: rgba(0, 255, 136, 0.1);
+    color: #00ff88;
+}
+.dropdown-content .divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 5px 0;
+}
+.show {
+    display: block !important;
+}
+.user-btn {
+    background: rgba(0, 255, 136, 0.1);
+    border-radius: 40px;
+    padding: 5px 15px;
+    cursor: pointer;
+}
+.user-btn:hover {
+    background: rgba(0, 255, 136, 0.2);
+}
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #00ff88, #00b4d8);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+}
+.user-avatar i {
+    font-size: 18px;
+    color: #0a0a0a;
+}
+.user-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #00ff88;
+}
+
+/* ========== NIVELES DE COMPETENCIA ========== */
+.nivel-4 {
+    color: #00ff88;
+    font-weight: 700;
+}
+.nivel-3 {
+    color: #00b4d8;
+    font-weight: 700;
+}
+.nivel-2 {
+    color: #ffc107;
+    font-weight: 700;
+}
+.nivel-1 {
+    color: #ff8888;
+    font-weight: 700;
+}
+
+/* ========== FOOTER ========== */
+.footer {
+    background: #0a0a0a;
+    color: #6b6b6b;
+    margin-top: auto;
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.footer a {
+    color: #6b6b6b;
+    text-decoration: none;
+}
+.footer a:hover {
+    color: #00ff88;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .dashboard-card {
+        padding: 1.2rem;
+    }
+    .dashboard-card i {
+        font-size: 36px;
+    }
+    .dashboard-card h4 {
+        font-size: 1rem;
+    }
+    .table thead th {
+        font-size: 0.7rem;
+        padding: 0.7rem;
+    }
+    .table tbody td {
+        font-size: 0.75rem;
+        padding: 0.6rem 0.7rem;
+    }
+    .btn-primary, .btn-back, .btn-submit {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+}
