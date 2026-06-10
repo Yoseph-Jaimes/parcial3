@@ -3,6 +3,7 @@ package com.parcial3.controller;
 import com.parcial3.model.*;
 import com.parcial3.model.enums.EstadoPago;
 import com.parcial3.model.enums.Rol;
+import com.parcial3.model.enums.EstadoResultado;
 import com.parcial3.repository.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,7 @@ public class EstudianteController {
     @Autowired
     private BeneficioRepository beneficioRepository;
 
-    // Ruta ABSOLUTA - esta carpeta DEBE existir
-    private String uploadDir = "C:/java3corte/parcial3/uploads/recibos";
+    private String uploadDir = "uploads/recibos";
 
     private boolean validarEstudiante(HttpSession session) {
         return session.getAttribute("usuario") != null &&
@@ -47,6 +47,18 @@ public class EstudianteController {
         return estudianteRepository.findByNumeroDocumento(usuario.getNumeroDocumento()).orElse(null);
     }
 
+    // Método para obtener puntaje mínimo según la carrera
+    private int getPuntajeMinimoPorCarrera(Estudiante estudiante) {
+        if (estudiante.getCarrera() == null) {
+            return 120; // valor por defecto (ingeniería)
+        }
+        String nombreCarrera = estudiante.getCarrera().getNombre().toLowerCase();
+        if (nombreCarrera.contains("tecnologia") || nombreCarrera.contains("tecnológico")) {
+            return 80;
+        }
+        return 120; // ingeniería y otras
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
         if (!validarEstudiante(session)) return "redirect:/login";
@@ -56,7 +68,7 @@ public class EstudianteController {
         model.addAttribute("estadoPago", estudiante.getEstadoPago().name());
         model.addAttribute("carreraNombre", estudiante.getCarrera() != null ? estudiante.getCarrera().getNombre() : "Sin asignar");
         
-        List<ResultadoSaberPro> resultados = resultadoRepository.findByEstudianteIdAndEstado(estudiante.getId(), com.parcial3.model.enums.EstadoResultado.ACTIVO);
+        List<ResultadoSaberPro> resultados = resultadoRepository.findByEstudianteIdAndEstado(estudiante.getId(), EstadoResultado.ACTIVO);
         ResultadoSaberPro ultimoResultado = resultados.isEmpty() ? null : resultados.get(resultados.size() - 1);
         model.addAttribute("ultimoPuntaje", ultimoResultado != null ? ultimoResultado.getPuntajeTotal() : null);
         
@@ -93,7 +105,6 @@ public class EstudianteController {
         if (!validarEstudiante(session)) return "redirect:/login";
         Estudiante estudiante = getEstudianteSesion(session);
 
-        // Validar si puede subir
         List<ReciboPago> recibos = reciboPagoRepository.findByEstudianteId(estudiante.getId());
         for (ReciboPago recibo : recibos) {
             if (recibo.getEstado() == EstadoPago.PENDIENTE || recibo.getEstado() == EstadoPago.APROBADO) {
@@ -112,36 +123,27 @@ public class EstudianteController {
         }
 
         try {
-            // Crear directorio si no existe
             File directorio = new File(uploadDir);
             if (!directorio.exists()) {
-                boolean creado = directorio.mkdirs();
-                System.out.println("Directorio creado: " + creado + " - Ruta: " + uploadDir);
+                directorio.mkdirs();
             }
 
-            // Guardar archivo
             String nombreOriginal = archivo.getOriginalFilename();
             String extension = nombreOriginal.substring(nombreOriginal.lastIndexOf("."));
             String nombreArchivo = UUID.randomUUID().toString() + extension;
             String rutaCompleta = uploadDir + File.separator + nombreArchivo;
-            
-            System.out.println("Guardando en: " + rutaCompleta);
-            
             archivo.transferTo(new File(rutaCompleta));
 
-            // Guardar registro en BD
             ReciboPago recibo = new ReciboPago(estudiante, nombreOriginal, rutaCompleta, LocalDateTime.now());
             reciboPagoRepository.save(recibo);
 
             model.addAttribute("success", "Recibo cargado exitosamente. Espera aprobación del coordinador.");
             model.addAttribute("puedeSubir", false);
             
-            // Actualizar lista de recibos
             recibos = reciboPagoRepository.findByEstudianteId(estudiante.getId());
             model.addAttribute("recibos", recibos);
         } catch (IOException e) {
-            e.printStackTrace();
-            model.addAttribute("error", "Error al guardar el archivo: " + e.getMessage());
+            model.addAttribute("error", "Error al guardar el archivo");
             model.addAttribute("puedeSubir", true);
             model.addAttribute("recibos", recibos);
         }
@@ -159,8 +161,18 @@ public class EstudianteController {
             return "estudiante/ultimo-resultado";
         }
 
-        List<ResultadoSaberPro> resultados = resultadoRepository.findByEstudianteIdAndEstado(estudiante.getId(), com.parcial3.model.enums.EstadoResultado.ACTIVO);
+        List<ResultadoSaberPro> resultados = resultadoRepository.findByEstudianteIdAndEstado(estudiante.getId(), EstadoResultado.ACTIVO);
         ResultadoSaberPro ultimoResultado = resultados.isEmpty() ? null : resultados.get(resultados.size() - 1);
+        
+        // Verificar si está reprobado
+        if (ultimoResultado != null) {
+            int puntajeMinimo = getPuntajeMinimoPorCarrera(estudiante);
+            boolean reprobado = ultimoResultado.getPuntajeTotal() < puntajeMinimo;
+            model.addAttribute("reprobado", reprobado);
+            model.addAttribute("puntajeMinimo", puntajeMinimo);
+            model.addAttribute("carreraNombre", estudiante.getCarrera() != null ? estudiante.getCarrera().getNombre() : "Sin carrera");
+        }
+        
         model.addAttribute("resultado", ultimoResultado);
         return "estudiante/ultimo-resultado";
     }
@@ -175,7 +187,7 @@ public class EstudianteController {
             return "estudiante/todos-resultados";
         }
 
-        List<ResultadoSaberPro> resultados = resultadoRepository.findByEstudianteIdAndEstado(estudiante.getId(), com.parcial3.model.enums.EstadoResultado.ACTIVO);
+        List<ResultadoSaberPro> resultados = resultadoRepository.findByEstudianteIdAndEstado(estudiante.getId(), EstadoResultado.ACTIVO);
         model.addAttribute("resultados", resultados);
         return "estudiante/todos-resultados";
     }
@@ -210,22 +222,36 @@ public class EstudianteController {
             return "estudiante/mis-beneficios";
         }
 
-        List<ResultadoSaberPro> resultados = resultadoRepository.findByEstudianteIdAndEstado(estudiante.getId(), com.parcial3.model.enums.EstadoResultado.ACTIVO);
+        List<ResultadoSaberPro> resultados = resultadoRepository.findByEstudianteIdAndEstado(estudiante.getId(), EstadoResultado.ACTIVO);
         ResultadoSaberPro ultimoResultado = resultados.isEmpty() ? null : resultados.get(resultados.size() - 1);
-
-        List<Beneficio> todosBeneficios = beneficioRepository.findAll();
-        List<Beneficio> beneficiosObtenidos = new ArrayList<>();
-
-        if (ultimoResultado != null && ultimoResultado.getPuntajeTotal() != null) {
+        
+        int puntajeMinimoAprobar = getPuntajeMinimoPorCarrera(estudiante);
+        boolean reprobado = false;
+        
+        if (ultimoResultado == null) {
+            model.addAttribute("sinResultados", true);
+        } else if (ultimoResultado.getPuntajeTotal() < puntajeMinimoAprobar) {
+            reprobado = true;
+            model.addAttribute("reprobado", true);
+            model.addAttribute("puntajeObtenido", ultimoResultado.getPuntajeTotal());
+            model.addAttribute("puntajeMinimo", puntajeMinimoAprobar);
+            model.addAttribute("carreraNombre", estudiante.getCarrera() != null ? estudiante.getCarrera().getNombre() : "Sin carrera");
+        } else {
+            List<Beneficio> todosBeneficios = beneficioRepository.findAll();
+            List<Beneficio> beneficiosObtenidos = new ArrayList<>();
             for (Beneficio beneficio : todosBeneficios) {
                 if (ultimoResultado.getPuntajeTotal() >= beneficio.getPuntajeMinimo()) {
                     beneficiosObtenidos.add(beneficio);
                 }
             }
+            model.addAttribute("beneficios", beneficiosObtenidos);
         }
-
-        model.addAttribute("beneficios", beneficiosObtenidos);
+        
+        model.addAttribute("reprobado", reprobado);
+        model.addAttribute("ultimoResultado", ultimoResultado);
         model.addAttribute("puntajeTotal", ultimoResultado != null ? ultimoResultado.getPuntajeTotal() : null);
+        model.addAttribute("carrera", estudiante.getCarrera());
+        
         return "estudiante/mis-beneficios";
     }
 }
