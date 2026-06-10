@@ -12,10 +12,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/estudiante")
@@ -32,6 +34,9 @@ public class EstudianteController {
 
     @Autowired
     private BeneficioRepository beneficioRepository;
+
+    // Usar directorio temporal de Render
+    private String uploadDir = "/tmp/recibos";
 
     private boolean validarEstudiante(HttpSession session) {
         return session.getAttribute("usuario") != null &&
@@ -118,12 +123,19 @@ public class EstudianteController {
         }
 
         try {
+            // Crear directorio si no existe
+            File directorio = new File(uploadDir);
+            if (!directorio.exists()) {
+                directorio.mkdirs();
+            }
+
             String nombreOriginal = archivo.getOriginalFilename();
-            String rutaArchivo = "BD:" + nombreOriginal;
-            
-            ReciboPago recibo = new ReciboPago(estudiante, nombreOriginal, rutaArchivo, LocalDateTime.now());
-            recibo.setArchivoData(archivo.getBytes());
-            recibo.setArchivoTipo(archivo.getContentType());
+            String extension = nombreOriginal.substring(nombreOriginal.lastIndexOf("."));
+            String nombreArchivo = UUID.randomUUID().toString() + extension;
+            String rutaCompleta = uploadDir + File.separator + nombreArchivo;
+            archivo.transferTo(new File(rutaCompleta));
+
+            ReciboPago recibo = new ReciboPago(estudiante, nombreOriginal, rutaCompleta, LocalDateTime.now());
             reciboPagoRepository.save(recibo);
 
             model.addAttribute("success", "Recibo cargado exitosamente. Espera aprobación del coordinador.");

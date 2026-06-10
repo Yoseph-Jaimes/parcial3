@@ -26,11 +26,7 @@ public class ReciboPago {
     private String observacion;
 
     // Nuevos campos para guardar el archivo en la BD
-    @Lob
-    private byte[] archivoData;
-
-    private String archivoTipo;
-
+   
     public ReciboPago() {}
 
     public ReciboPago(Estudiante estudiante, String nombreArchivo, String rutaArchivo, LocalDateTime fechaCarga) {
@@ -66,9 +62,5 @@ public class ReciboPago {
     public String getObservacion() { return observacion; }
     public void setObservacion(String observacion) { this.observacion = observacion; }
 
-    public byte[] getArchivoData() { return archivoData; }
-    public void setArchivoData(byte[] archivoData) { this.archivoData = archivoData; }
-
-    public String getArchivoTipo() { return archivoTipo; }
-    public void setArchivoTipo(String archivoTipo) { this.archivoTipo = archivoTipo; }
+  
 }
