@@ -35,7 +35,6 @@ public class EstudianteController {
     @Autowired
     private BeneficioRepository beneficioRepository;
 
-    // Usar directorio temporal de Render
     private String uploadDir = "/tmp/recibos";
 
     private boolean validarEstudiante(HttpSession session) {
@@ -57,6 +56,24 @@ public class EstudianteController {
             return 80;
         }
         return 120;
+    }
+
+    private void anularPagoYCambiarEstado(Estudiante estudiante) {
+        // Anular todos los recibos aprobados
+        List<ReciboPago> recibos = reciboPagoRepository.findByEstudianteId(estudiante.getId());
+        for (ReciboPago recibo : recibos) {
+            if (recibo.getEstado() == EstadoPago.APROBADO) {
+                recibo.setEstado(EstadoPago.RECHAZADO);
+                recibo.setObservacion("Estudiante reprobó - Debe realizar nuevo pago");
+                recibo.setFechaAprobacion(LocalDateTime.now());
+                reciboPagoRepository.save(recibo);
+            }
+        }
+        
+        // Cambiar estado del estudiante a PENDIENTE
+        estudiante.setEstadoPago(EstadoPago.PENDIENTE);
+        estudiante.setFechaAprobacion(null);
+        estudianteRepository.save(estudiante);
     }
 
     @GetMapping("/dashboard")
@@ -123,7 +140,6 @@ public class EstudianteController {
         }
 
         try {
-            // Crear directorio si no existe
             File directorio = new File(uploadDir);
             if (!directorio.exists()) {
                 directorio.mkdirs();
@@ -168,9 +184,16 @@ public class EstudianteController {
         if (ultimoResultado != null) {
             int puntajeMinimo = getPuntajeMinimoPorCarrera(estudiante);
             boolean reprobado = ultimoResultado.getPuntajeTotal() < puntajeMinimo;
-            model.addAttribute("reprobado", reprobado);
-            model.addAttribute("puntajeMinimo", puntajeMinimo);
-            model.addAttribute("carreraNombre", estudiante.getCarrera() != null ? estudiante.getCarrera().getNombre() : "Sin carrera");
+            
+            if (reprobado) {
+                anularPagoYCambiarEstado(estudiante);
+                model.addAttribute("reprobado", true);
+                model.addAttribute("puntajeMinimo", puntajeMinimo);
+                model.addAttribute("puntajeObtenido", ultimoResultado.getPuntajeTotal());
+                model.addAttribute("carreraNombre", estudiante.getCarrera() != null ? estudiante.getCarrera().getNombre() : "Sin carrera");
+                model.addAttribute("error", "Has reprobado la prueba. Tu pago ha sido anulado. Debes realizar un nuevo pago.");
+                return "estudiante/ultimo-resultado";
+            }
         }
         
         model.addAttribute("resultado", ultimoResultado);
@@ -232,6 +255,7 @@ public class EstudianteController {
             model.addAttribute("sinResultados", true);
         } else if (ultimoResultado.getPuntajeTotal() < puntajeMinimoAprobar) {
             reprobado = true;
+            anularPagoYCambiarEstado(estudiante);
             model.addAttribute("reprobado", true);
             model.addAttribute("puntajeObtenido", ultimoResultado.getPuntajeTotal());
             model.addAttribute("puntajeMinimo", puntajeMinimoAprobar);
