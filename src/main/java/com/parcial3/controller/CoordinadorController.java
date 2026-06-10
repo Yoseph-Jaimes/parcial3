@@ -527,18 +527,6 @@ public class CoordinadorController {
     }
     
     
-    @GetMapping("/ver-recibo/{id}")
-    public void verRecibo(@PathVariable Long id, HttpServletResponse response, HttpSession session) throws IOException {
-        if (!validarCoordinador(session)) return;
-        
-        ReciboPago recibo = reciboPagoRepository.findById(id).orElse(null);
-        if (recibo != null && recibo.getArchivoData() != null) {
-            response.setContentType(recibo.getArchivoTipo());
-            response.setHeader("Content-Disposition", "inline; filename=\"" + recibo.getNombreArchivo() + "\"");
-            response.getOutputStream().write(recibo.getArchivoData());
-            response.getOutputStream().flush();
-        } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-        }
-    }
+   
+    
 }
