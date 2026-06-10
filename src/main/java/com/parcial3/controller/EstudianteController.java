@@ -199,7 +199,6 @@ public class EstudianteController {
         model.addAttribute("resultado", ultimoResultado);
         return "estudiante/ultimo-resultado";
     }
-
     @GetMapping("/todos-resultados")
     public String todosResultados(HttpSession session, Model model) {
         if (!validarEstudiante(session)) return "redirect:/login";
