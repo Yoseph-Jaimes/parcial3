@@ -38,11 +38,19 @@
         .btn-back:hover { background: #00b4d8; color: #0a0a0a; transform: translateY(-2px); }
         
         .badge-pendiente { background: rgba(255, 193, 7, 0.15); color: #ffc107; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; }
+        .badge-aprobado { background: rgba(0, 255, 136, 0.15); color: #00ff88; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; }
+        .badge-rechazado { background: rgba(255, 68, 68, 0.15); color: #ff8888; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; }
+        
+        .btn-ver { background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3); border-radius: 30px; padding: 5px 12px; color: #00b4d8; text-decoration: none; font-size: 0.7rem; transition: all 0.3s; }
+        .btn-ver:hover { background: #00b4d8; color: #0a0a0a; }
+        
         .modal-content { background: #141414; border: 1px solid rgba(0,180,216,0.2); }
         .modal-header { border-bottom: 1px solid rgba(0,180,216,0.2); }
         .modal-footer { border-top: 1px solid rgba(0,180,216,0.2); }
         .modal-title { color: #00b4d8; }
         .btn-close { filter: invert(1); }
+        .form-control { background: #1a1a1a; border: 1px solid rgba(0,180,216,0.2); color: white; border-radius: 12px; }
+        .form-label { color: #00b4d8; }
     </style>
 </head>
 <body>
@@ -92,8 +100,8 @@
                     <td th:text="${recibo.estudiante.primerNombre} + ' ' + ${recibo.estudiante.primerApellido}">-</td>
                     <td th:text="${recibo.estudiante.numeroDocumento}">-</td>
                     <td>
-                        <a th:href="@{/${recibo.rutaArchivo}}" target="_blank" class="text-info">
-                            <i class="fas fa-file-pdf me-1"></i> <span th:text="${recibo.nombreArchivo}"></span>
+                        <a th:href="@{/coordinador/ver-recibo/{id}(id=${recibo.id})}" target="_blank" class="btn-ver">
+                            <i class="fas fa-eye me-1"></i> Ver Recibo
                         </a>
                     </td>
                     <td th:text="${#temporals.format(recibo.fechaCarga, 'dd/MM/yyyy HH:mm')}">-</td>

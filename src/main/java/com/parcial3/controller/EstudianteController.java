@@ -12,12 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/estudiante")
@@ -35,8 +33,6 @@ public class EstudianteController {
     @Autowired
     private BeneficioRepository beneficioRepository;
 
-    private String uploadDir = "uploads/recibos";
-
     private boolean validarEstudiante(HttpSession session) {
         return session.getAttribute("usuario") != null &&
                session.getAttribute("rol") == Rol.ESTUDIANTE;
@@ -47,16 +43,15 @@ public class EstudianteController {
         return estudianteRepository.findByNumeroDocumento(usuario.getNumeroDocumento()).orElse(null);
     }
 
-    // Método para obtener puntaje mínimo según la carrera
     private int getPuntajeMinimoPorCarrera(Estudiante estudiante) {
         if (estudiante.getCarrera() == null) {
-            return 120; // valor por defecto (ingeniería)
+            return 120;
         }
         String nombreCarrera = estudiante.getCarrera().getNombre().toLowerCase();
         if (nombreCarrera.contains("tecnologia") || nombreCarrera.contains("tecnológico")) {
             return 80;
         }
-        return 120; // ingeniería y otras
+        return 120;
     }
 
     @GetMapping("/dashboard")
@@ -123,18 +118,12 @@ public class EstudianteController {
         }
 
         try {
-            File directorio = new File(uploadDir);
-            if (!directorio.exists()) {
-                directorio.mkdirs();
-            }
-
             String nombreOriginal = archivo.getOriginalFilename();
-            String extension = nombreOriginal.substring(nombreOriginal.lastIndexOf("."));
-            String nombreArchivo = UUID.randomUUID().toString() + extension;
-            String rutaCompleta = uploadDir + File.separator + nombreArchivo;
-            archivo.transferTo(new File(rutaCompleta));
-
-            ReciboPago recibo = new ReciboPago(estudiante, nombreOriginal, rutaCompleta, LocalDateTime.now());
+            String rutaArchivo = "BD:" + nombreOriginal;
+            
+            ReciboPago recibo = new ReciboPago(estudiante, nombreOriginal, rutaArchivo, LocalDateTime.now());
+            recibo.setArchivoData(archivo.getBytes());
+            recibo.setArchivoTipo(archivo.getContentType());
             reciboPagoRepository.save(recibo);
 
             model.addAttribute("success", "Recibo cargado exitosamente. Espera aprobación del coordinador.");
@@ -143,7 +132,7 @@ public class EstudianteController {
             recibos = reciboPagoRepository.findByEstudianteId(estudiante.getId());
             model.addAttribute("recibos", recibos);
         } catch (IOException e) {
-            model.addAttribute("error", "Error al guardar el archivo");
+            model.addAttribute("error", "Error al guardar el archivo: " + e.getMessage());
             model.addAttribute("puedeSubir", true);
             model.addAttribute("recibos", recibos);
         }
@@ -164,7 +153,6 @@ public class EstudianteController {
         List<ResultadoSaberPro> resultados = resultadoRepository.findByEstudianteIdAndEstado(estudiante.getId(), EstadoResultado.ACTIVO);
         ResultadoSaberPro ultimoResultado = resultados.isEmpty() ? null : resultados.get(resultados.size() - 1);
         
-        // Verificar si está reprobado
         if (ultimoResultado != null) {
             int puntajeMinimo = getPuntajeMinimoPorCarrera(estudiante);
             boolean reprobado = ultimoResultado.getPuntajeTotal() < puntajeMinimo;
